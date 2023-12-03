@@ -4,7 +4,6 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import React from 'react';
-import { SheetClose } from '../ui/sheet';
 import Link from 'next/link';
 import { SignedOut } from '@clerk/nextjs';
 import { Button } from '../ui/button';
