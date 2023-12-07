@@ -31,6 +31,7 @@
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-tailwindcss": "^3.13.0",
     "lucide-react": "^0.290.0",
+    "mongoose": "^8.0.2",
     "next": "13.5.2",
     "postcss": "8.4.30",
     "prettier": "^3.0.3",
