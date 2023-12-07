@@ -14,7 +14,7 @@ interface MetricProps {
 }
 
 const Metric = (props: MetricProps) => {
-	const { imgUrl, alt, value, href, title, textStyles, isAuthor } = props;
+	const { imgUrl, alt, value, href, title, textStyles} = props;
 	const metricContent = (
 		<>
 			<Image
