@@ -11,8 +11,8 @@ import { Button } from '../ui/button';
 const LeftSidebar = () => {
 	const pathname = usePathname();
 	return (
-		<aside className='background-light900_dark200 light-border flex flex-col sticky top-0 left-0 h-screen justify-between overflow-y-auto border-r p-6 pt-36 shadow-light-300 dark:shadow-none max-sm:hidden lg:w-[266px]'>
-			<div className='flex flex-col gap-6 flex-1'>
+		<aside className='background-light900_dark200 light-border sticky left-0 top-0 flex h-screen flex-col justify-between overflow-y-auto border-r p-6 pt-36 shadow-light-300 dark:shadow-none max-sm:hidden lg:w-[266px]'>
+			<div className='flex flex-1 flex-col gap-6'>
 				{sidebarLinks.map(item => {
 					const isActive =
 						(pathname.includes(item.route) && item.route.length > 1) ||
@@ -65,7 +65,7 @@ const LeftSidebar = () => {
 						</Button>
 					</Link>
 					<Link href='sign-up'>
-						<Button className='small-medium btn-tertiary light-border-2 min-h-[41px] w-full rounded-lg px-4 py-3 shadow-none text-dark400_light900'>
+						<Button className='small-medium btn-tertiary light-border-2 text-dark400_light900 min-h-[41px] w-full rounded-lg px-4 py-3 shadow-none'>
 							<Image
 								src='/assets/icons/sign-up.svg'
 								alt='User Icon'

@@ -43,7 +43,6 @@ const Page = async () => {
 							key={question._id}
 							_id={question._id}
 							title={question.title}
-							
 							tags={question.tags}
 							author={question.author}
 							upvotes={question.upvotes}
