@@ -4,13 +4,13 @@ import RenderTag from '../shared/RenderTag';
 import Metric from '../shared/Metric';
 import { timeAgoFormatter, timeFormatter } from '@/lib/utils/timeFormatter';
 import { formatNumber } from '@/lib/utils/formatNumber';
-import { IUser } from '@/database/user.modal'
+import { IUser } from '@/database/user.modal';
 
 interface QuestionCardProps {
 	_id: number;
 	title: string;
 	tags: {
-		_id: number;
+		_id: string;
 		name: string;
 	}[];
 	author: IUser;
@@ -24,7 +24,7 @@ const QuestionCard = (props: QuestionCardProps) => {
 	const { _id, title, tags, author, upvotes, views, answers, createdAt } =
 		props;
 	return (
-		<div className='card-wrapper p-9 rounded-[10px] sm:px-11'>
+		<div className='card-wrapper rounded-[10px] p-9 sm:px-11'>
 			<div className='flex flex-col-reverse items-start justify-between gap-5 sm:flex-row'>
 				<div>
 					<span className='subtle-regular text-dark400_light700 line-clamp-1 flex sm:hidden'>
@@ -44,11 +44,13 @@ const QuestionCard = (props: QuestionCardProps) => {
 			</div>
 			<div className='flex-between mt-6 w-full flex-wrap gap-3'>
 				<Metric
-					href={''}
-					imgUrl='/assets/icons/avatar.svg'
+					href={'/profile/' + author.clerkId}
+					imgUrl={author.picture}
 					alt='Upvotes'
 					value={''}
-					title={author.name + ' asked ' + timeAgoFormatter(Date.parse(createdAt))}
+					title={
+						author.name + ' asked ' + timeAgoFormatter(Date.parse(createdAt))
+					}
 					textStyles='small-medium text-dark400_light800'
 				/>
 				<Metric

@@ -13,7 +13,7 @@ const Page = async () => {
 	const { questions } = await getQuestions({});
 	return (
 		<>
-			<div className='flex flex-col-reverse w-full justify-between gap-4 sm:flex-row sm:items-center'>
+			<div className='flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center'>
 				<h1 className='h1-bold text-dark100_light900'>All questions</h1>
 				<Link href='/ask-question' className='flex justify-end max-sm:w-full'>
 					<Button className='primary-gradient min-h-[46px] px-4 py-3 text-light-900'>
@@ -36,14 +36,13 @@ const Page = async () => {
 				/>
 			</div>
 			<HomeFilters />
-			<div className='flex flex-col w-full mt-10 gap-6'>
+			<div className='mt-10 flex w-full flex-col gap-6'>
 				{questions && questions.length > 0 ? (
 					questions.map(question => (
 						<QuestionCard
 							key={question._id}
 							_id={question._id}
 							title={question.title}
-							
 							tags={question.tags}
 							author={question.author}
 							upvotes={question.upvotes}

@@ -28,7 +28,7 @@ const Filter = ({ filters, otherClasses, containerClasses }: FilterProps) => {
 						otherClasses
 					)}
 				>
-					<div className='flex-1 line-clamp-1 text-left'>
+					<div className='line-clamp-1 flex-1 text-left'>
 						<SelectValue placeholder='Select a filter' />
 					</div>
 				</SelectTrigger>
