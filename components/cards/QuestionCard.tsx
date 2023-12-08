@@ -4,7 +4,7 @@ import RenderTag from '../shared/RenderTag';
 import Metric from '../shared/Metric';
 import { timeAgoFormatter, timeFormatter } from '@/lib/utils/timeFormatter';
 import { formatNumber } from '@/lib/utils/formatNumber';
-import { IUser } from '@/database/user.modal'
+import { IUser } from '@/database/user.modal';
 
 interface QuestionCardProps {
 	_id: number;
@@ -44,11 +44,13 @@ const QuestionCard = (props: QuestionCardProps) => {
 			</div>
 			<div className='flex-between mt-6 w-full flex-wrap gap-3'>
 				<Metric
-					href={''}
-					imgUrl='/assets/icons/avatar.svg'
+					href={'/profile/' + author.clerkId}
+					imgUrl={author.picture}
 					alt='Upvotes'
 					value={''}
-					title={author.name + ' asked ' + timeAgoFormatter(Date.parse(createdAt))}
+					title={
+						author.name + ' asked ' + timeAgoFormatter(Date.parse(createdAt))
+					}
 					textStyles='small-medium text-dark400_light800'
 				/>
 				<Metric

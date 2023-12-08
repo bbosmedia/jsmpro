@@ -4,6 +4,7 @@ import User from '@/database/user.modal';
 import { connectToDatabase } from '../mongoose';
 import {
 	CreateUserParams,
+	GetAllUsersParams,
 	GetUserByIdParams,
 	UpdateUserParams,
 } from '@/types/shared.types';
@@ -36,15 +37,25 @@ export async function updateUser(params: UpdateUserParams) {
 	const { clerkId, updateData, path } = params;
 	try {
 		connectToDatabase();
-		const user = await User.findOneAndUpdate(
-			{ clerkId },
-			updateData,
-			{ new: true }
-		);
+		const user = await User.findOneAndUpdate({ clerkId }, updateData, {
+			new: true,
+		});
 		revalidatePath(path);
 		return user;
 	} catch (error) {
 		console.log(error);
 		throw error;
+	}
+}
+
+export async function getAllUsers(params: GetAllUsersParams) {
+	try {
+		connectToDatabase();
+		// const { page = 1, pageSize = 20, filter, searchQuery } = params;
+		const users = await User.find({}).sort({ createdAt: -1 });
+		return { users };
+	} catch (e) {
+		console.log(e);
+		throw e;
 	}
 }
