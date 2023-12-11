@@ -1,4 +1,4 @@
-import Answer from '@/components/forms/Answer'
+import Answer from '@/components/forms/Answer';
 import Metric from '@/components/shared/Metric';
 import ParseHTML from '@/components/shared/ParseHTML';
 import RenderTag from '@/components/shared/RenderTag';
@@ -9,7 +9,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 
-const Page = async ({ params }) => {
+const Page = async ({ params }: { params: { id: string } }) => {
 	const result = await getQuestionById({ questionId: params.id });
 	const { author, tags } = await result;
 	return (
