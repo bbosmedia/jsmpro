@@ -21,6 +21,7 @@ import { Badge } from '../ui/badge';
 import Image from 'next/image';
 import { createQuestion } from '@/lib/actions/question.action';
 import { useRouter } from 'next/navigation';
+import { useTheme } from '@/context/ThemeProvider'
 
 interface QuestionProps {
 	type: 'edit' | 'create';
@@ -31,6 +32,7 @@ const Question = ({ type, mongoUserId }: QuestionProps) => {
 	const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 	const router = useRouter();
 	const editorRef = useRef(null);
+	const { mode } = useTheme();
 
 	// 1. Define your form.
 	const form = useForm<z.infer<typeof QuestionsSchema>>({
@@ -182,6 +184,8 @@ const Question = ({ type, mongoUserId }: QuestionProps) => {
 											'removeformat | help',
 										content_style:
 											'body { font-family:Inter,sans-serif; font-size:16px }',
+										skin: mode === 'dark' ? 'oxide-dark' : 'oxide',
+										content_css: mode === 'dark' ? 'dark' : 'light',
 									}}
 								/>
 							</FormControl>

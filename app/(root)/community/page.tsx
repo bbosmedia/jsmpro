@@ -17,7 +17,7 @@ const Page = async () => {
 					iconPosition='left'
 					imgSrc='/assets/icons/search.svg'
 					otherClasses='flex-1'
-					placeholder='Search for questions'
+					placeholder='Search for users'
 				/>
 				<Filter
 					filters={UserFilters}

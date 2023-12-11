@@ -5,7 +5,7 @@ import Tag from '@/database/tag.modal';
 import { connectToDatabase } from '../mongoose';
 import {
 	CreateQuestionParams,
-	DeleteUserParams,
+	GetQuestionByIdParams,
 	GetQuestionsParams,
 } from '@/types/shared.types';
 import User from '@/database/user.modal';
@@ -64,25 +64,24 @@ export async function createQuestion(params: CreateQuestionParams) {
 			$push: { tags: { $each: tagDocuments } },
 		});
 		revalidatePath(path);
-	} catch (e) {}
+	} catch (error) {
+		console.log(error);
+		throw error;
+	}
 }
 
-export async function deleteUser(params: DeleteUserParams) {
-	const { clerkId } = params;
+export async function getQuestionById(params: GetQuestionByIdParams) {
 	try {
-		const user = await User.findOne({ clerkId });
-
-		if (!user) {
-			throw new Error('User not found');
-		}
-
-		
-
-		const deletedUser = await Question.deleteMany({ author: user._id });
-
-		await User.findByIdAndDelete(user._id);
-
-		return deletedUser;
+		const { questionId } = params;
+		connectToDatabase();
+		const question = await Question.findById(questionId)
+			.populate({ path: 'tags', model: Tag, select: '_id name' })
+			.populate({
+				path: 'author',
+				model: User,
+				select: '_id clerkId name picture',
+			});
+		return question;
 	} catch (error) {
 		console.log(error);
 		throw error;

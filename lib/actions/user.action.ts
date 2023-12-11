@@ -4,11 +4,13 @@ import User from '@/database/user.modal';
 import { connectToDatabase } from '../mongoose';
 import {
 	CreateUserParams,
+	DeleteUserParams,
 	GetAllUsersParams,
 	GetUserByIdParams,
 	UpdateUserParams,
 } from '@/types/shared.types';
 import { revalidatePath } from 'next/cache';
+import Question from '@/database/question.modal'
 
 export async function getUserById(params: GetUserByIdParams) {
 	const { userId } = params;
@@ -57,5 +59,27 @@ export async function getAllUsers(params: GetAllUsersParams) {
 	} catch (e) {
 		console.log(e);
 		throw e;
+	}
+}
+
+export async function deleteUser(params: DeleteUserParams) {
+	const { clerkId } = params;
+	try {
+		const user = await User.findOne({ clerkId });
+
+		if (!user) {
+			throw new Error('User not found');
+		}
+
+		
+
+		const deletedUser = await Question.deleteMany({ author: user._id });
+
+		await User.findByIdAndDelete(user._id);
+
+		return deletedUser;
+	} catch (error) {
+		console.log(error);
+		throw error;
 	}
 }
