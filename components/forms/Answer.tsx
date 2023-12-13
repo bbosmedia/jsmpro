@@ -15,8 +15,17 @@ import { Editor } from '@tinymce/tinymce-react';
 import { useTheme } from '@/context/ThemeProvider';
 import { Button } from '../ui/button';
 import Image from 'next/image';
+import { createAnswer } from '@/lib/actions/answer.action';
+import { usePathname } from 'next/navigation';
 
-const Answer = () => {
+interface Props {
+	question: string;
+	questionId: string;
+	author: string;
+}
+
+const Answer = ({ question, questionId, author }: Props) => {
+	const pathanme = usePathname();
 	const { mode } = useTheme();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const form = useForm<z.infer<typeof AnswerSchema>>({
@@ -28,9 +37,25 @@ const Answer = () => {
 
 	const answerRef = useRef(null);
 
-	const handleCreateAnswer = async (data: { answer: string }) => {
-		setIsSubmitting(value => !value);
-		console.log(data);
+	const handleCreateAnswer = async (data: z.infer<typeof AnswerSchema>) => {
+		setIsSubmitting(value => true);
+		try {
+			await createAnswer({
+				content: data.answer,
+				author: JSON.parse(author),
+				question: JSON.parse(questionId),
+				path: pathanme,
+			});
+			form.reset();
+			if (answerRef.current) {
+				const editor = answerRef.current as any;
+				editor.setContent('');
+			}
+		} catch (e) {
+			console.log(e);
+		} finally {
+			setIsSubmitting(value => false);
+		}
 	};
 	return (
 		<div>
@@ -111,7 +136,7 @@ const Answer = () => {
 					/>
 					<div className='flex justify-end'>
 						<Button
-							type='button'
+							type='submit'
 							disabled={isSubmitting}
 							className='primary-gradient w-fit text-white'
 						>
