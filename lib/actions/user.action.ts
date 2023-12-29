@@ -1,18 +1,22 @@
 'use server';
 
-import User from '@/database/user.modal';
+import User from '@/database/user.model';
 import { connectToDatabase } from '../mongoose';
 import {
 	CreateUserParams,
 	DeleteUserParams,
 	GetAllUsersParams,
 	GetUserByIdParams,
+	GetUserStatsParams,
 	ToggleSaveQuestionParams,
 	UpdateUserParams,
 } from '@/types/shared.types';
 import { revalidatePath } from 'next/cache';
-import Question from '@/database/question.modal';
+import Question from '@/database/question.model';
 import { use } from 'react';
+import Answer from '@/database/answer.model';
+import Tag from '@/database/tag.model';
+import { FilterQuery } from 'mongoose';
 
 // Get User Details By ID
 export async function getUserById(params: GetUserByIdParams) {
@@ -59,8 +63,20 @@ export async function updateUser(params: UpdateUserParams) {
 export async function getAllUsers(params: GetAllUsersParams) {
 	try {
 		connectToDatabase();
-		// const { page = 1, pageSize = 20, filter, searchQuery } = params;
-		const users = await User.find({}).sort({ createdAt: -1 });
+		const { page = 1, pageSize = 20, filter, searchQuery } = params;
+		const query: FilterQuery<typeof Question> = {};
+
+		if (searchQuery) {
+			query.$or = [
+				{ username: { $regex: new RegExp(searchQuery, 'i') } },
+				{ name: { $regex: new RegExp(searchQuery, 'i') } },
+				{ email: { $regex: new RegExp(searchQuery, 'i') } },
+				{ bio: { $regex: new RegExp(searchQuery, 'i') } },
+				{ location: { $regex: new RegExp(searchQuery, 'i') } },
+				
+			];
+		}
+		const users = await User.find(query).sort({ createdAt: -1 });
 		return { users };
 	} catch (e) {
 		console.log(e);
@@ -118,3 +134,79 @@ export async function toggleSavedQuestion(params: ToggleSaveQuestionParams) {
 		throw error;
 	}
 }
+
+// Get User Info
+export async function getUserInfo(params: GetUserByIdParams) {
+	try {
+		await connectToDatabase();
+		const user = await User.findOne({ clerkId: params.userId }).exec();
+		if (!user) {
+			throw new Error('User not found');
+		}
+		const totalQuestions = await Question.countDocuments({ author: user._id });
+		const totalAnswers = await Answer.countDocuments({ author: user._id });
+		return { user, totalAnswers, totalQuestions };
+	} catch (error) {
+		console.log(error);
+		throw error;
+	}
+}
+
+// Get User Questions
+export const getUserQuestions = async (params: GetUserStatsParams) => {
+	const { userId, page = 1, pageSize = 10 } = params;
+	const skip = (page - 1) * pageSize;
+	try {
+		await connectToDatabase();
+		const totalQuestions = await Question.countDocuments({ author: userId });
+		const userQuestions = await Question.find({ author: userId })
+			.sort({ views: -1, upvotes: -1 })
+			.limit(pageSize)
+			.skip(skip)
+			.populate('tags', '_id name')
+			.populate('author', '_id clerkId name picture');
+
+		return { questions: userQuestions, totalQuestions };
+	} catch (error) {
+		console.log(error);
+		throw error;
+	}
+};
+
+// Get User Answers
+export const getUserAnswers = async (params: GetUserStatsParams) => {
+	const { userId, page = 1, pageSize = 10 } = params;
+	const skip = (page - 1) * pageSize;
+	try {
+		await connectToDatabase();
+		const totalAnswers = await Answer.countDocuments({ author: userId });
+		const userAnswers = await Answer.find({ author: userId })
+			.sort({ upvotes: -1 })
+			.limit(pageSize)
+			.skip(skip)
+			.populate('question', '_id title')
+			.populate('author', '_id clerkId name picture');
+
+		return { answers: userAnswers, totalAnswers };
+	} catch (error) {
+		console.log(error);
+		throw error;
+	}
+};
+
+// Update User Details
+export const updateUserDetails = async (params: UpdateUserParams) => {
+	const { clerkId, updateData, path } = params;
+	try {
+		await connectToDatabase();
+		const user = await User.findOne({ clerkId });
+		if (!user) {
+			throw new Error('User not found');
+		}
+		await User.findByIdAndUpdate(user._id, updateData, { new: true });
+		revalidatePath(path);
+	} catch (error) {
+		console.log(error);
+		throw error;
+	}
+};

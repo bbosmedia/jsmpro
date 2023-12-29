@@ -1,24 +1,37 @@
 'use server';
 
-import Question from '@/database/question.modal';
-import Tag from '@/database/tag.modal';
+import Question from '@/database/question.model';
+import Tag from '@/database/tag.model';
 import { connectToDatabase } from '../mongoose';
 import {
 	CreateQuestionParams,
+	DeleteQuestionParams,
+	EditQuestionParams,
 	GetQuestionByIdParams,
 	GetQuestionsParams,
 	GetSavedQuestionsParams,
 	QuestionVoteParams,
 } from '@/types/shared.types';
-import User from '@/database/user.modal';
+import User from '@/database/user.model';
 import { revalidatePath } from 'next/cache';
 import { FilterQuery } from 'mongoose';
+import Answer from '@/database/answer.model';
+import Interaction from '@/database/interaction.model';
 
 // Get Question
 export async function getQuestions(params: GetQuestionsParams) {
 	try {
 		await connectToDatabase();
-		const questions = await Question.find({})
+		const { searchQuery } = params;
+		const query: FilterQuery<typeof Question> = {};
+
+		if (searchQuery) {
+			query.$or = [
+				{ title: { $regex: new RegExp(searchQuery, 'i') } },
+				{ content: { $regex: new RegExp(searchQuery, 'i') } },
+			];
+		}
+		const questions = await Question.find(query)
 			.populate({
 				path: 'tags',
 				model: Tag,
@@ -162,13 +175,19 @@ export async function downvoteQuestion(params: QuestionVoteParams) {
 	}
 }
 
+// Get Saved Questions
 export async function getSavedQuestions(params: GetSavedQuestionsParams) {
 	const { clerkId, page = 1, pageSize = 10, filter, searchQuery } = params;
 	try {
 		await connectToDatabase();
-		const query: FilterQuery<typeof Question> = searchQuery
-			? { title: { $regex: new RegExp(searchQuery, 'i') } }
-			: {};
+		const query: FilterQuery<typeof Question> = {};
+
+		if (searchQuery) {
+			query.$or = [
+				{ title: { $regex: new RegExp(searchQuery, 'i') } },
+				{ content: { $regex: new RegExp(searchQuery, 'i') } },
+			];
+		}
 		const skip = (page - 1) * pageSize;
 		const user = await User.findOne({ clerkId })
 			.populate({
@@ -197,3 +216,61 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
 		throw error;
 	}
 }
+
+// Delete Question
+export const deleteQuestion = async (params: DeleteQuestionParams) => {
+	const { questionId, path } = params;
+	try {
+		await connectToDatabase();
+		await Question.deleteOne({ _id: questionId });
+		await Answer.deleteMany({ question: questionId });
+		await User.updateMany(
+			{ saved: questionId },
+			{ $pull: { saved: questionId } }
+		);
+		await Interaction.deleteMany({ question: questionId });
+		await Tag.updateMany(
+			{ questions: questionId },
+			{ $pull: { questions: questionId } }
+		);
+		revalidatePath(path);
+	} catch (error) {
+		console.log(error);
+		throw error;
+	}
+};
+
+// Edit Question
+export const editQuestion = async (params: EditQuestionParams) => {
+	const { questionId, title, content, path } = params;
+	try {
+		await connectToDatabase();
+		const question = await Question.findById(questionId).populate('tags');
+		if (!question) {
+			throw new Error('Question not found');
+		}
+		question.title = title;
+		question.content = content;
+		await question.save();
+		revalidatePath(path);
+	} catch (error) {
+		console.log(error);
+		throw error;
+	}
+};
+
+// Get Hot the questions
+
+export const getHotQuestions = async () => {
+	try {
+		await connectToDatabase();
+		const hotQuestions = await Question.find()
+			.sort({ views: -1, upvotes: -1 })
+			.limit(5);
+		return hotQuestions;
+		return;
+	} catch (error) {
+		console.log(error);
+		throw error;
+	}
+};

@@ -1,46 +1,35 @@
 import QuestionCard from '@/components/cards/QuestionCard';
 import NoResult from '@/components/shared/NoResult';
-import Filter from '@/components/shared/filters/Filter';
-import HomeFilters from '@/components/shared/filters/HomeFilters';
 import LocalSearchbar from '@/components/shared/search/LocalSearchbar';
 import { Button } from '@/components/ui/button';
-import { HomePageFilters, QuestionFilters } from '@/constants/filters';
-import { getSavedQuestions } from '@/lib/actions/question.action';
-import { SearchParamsProps } from '@/types';
-import { auth } from '@clerk/nextjs';
+import { getQuestionsByTagId } from '@/lib/actions/tag.actions';
+import { URLProps } from '@/types';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import React from 'react';
 
-const Page = async ({ searchParams }: SearchParamsProps) => {
-	const user = await auth();
-	const { userId } = user;
-	if (!userId) return redirect('/sign-in');
-	const { questions } = await getSavedQuestions({
-		clerkId: user.userId,
+const Page = async ({ params, searchParams }: URLProps) => {
+	const { tagTitle, questions } = await getQuestionsByTagId({
+		tagId: params.id,
+		page: 1,
 		searchQuery: searchParams.q,
 	});
 	return (
 		<>
 			<div className='flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center'>
-				<h1 className='h1-bold text-dark100_light900'>Saved questions</h1>
+				<h1 className='h1-bold text-dark100_light900 capitalize'>{tagTitle}</h1>
 				<Link href='/ask-question' className='flex justify-end max-sm:w-full'>
 					<Button className='primary-gradient min-h-[46px] px-4 py-3 text-light-900'>
 						Ask a question
 					</Button>
 				</Link>
 			</div>
-			<div className='mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center'>
+			<div className='mt-11 w-full'>
 				<LocalSearchbar
-					route='/'
+					route={`/tags/${params.id}`}
 					iconPosition='left'
 					imgSrc='/assets/icons/search.svg'
 					otherClasses='flex-1'
 					placeholder='Search for questions'
-				/>
-				<Filter
-					filters={QuestionFilters}
-					otherClasses='min-h-[56px] sm:min-w-[170px]'
 				/>
 			</div>
 
@@ -63,8 +52,8 @@ const Page = async ({ searchParams }: SearchParamsProps) => {
 					<NoResult
 						title="There's no saved question question to show"
 						description='Be the first to break the silence. Ask question and kickstart the
-			discussion. Our query could be the next big thing others learn from. Get
-			involved.'
+	discussion. Our query could be the next big thing others learn from. Get
+	involved.'
 						link='/ask-question'
 						linkTitle='Ask a question'
 					/>

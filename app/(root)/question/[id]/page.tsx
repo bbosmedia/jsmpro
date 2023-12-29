@@ -98,11 +98,13 @@ const Page = async ({ params }: { params: { id: string } }) => {
 					totalAnswers={result.answers.length}
 				/>
 			)}
-			<Answer
-				question={result.content}
-				questionId={JSON.stringify(result._id)}
-				author={JSON.stringify(mongoUser._id)}
-			/>
+			<div className='mt-8'>
+				<Answer
+					question={result.content}
+					questionId={JSON.stringify(result._id)}
+					author={JSON.stringify(mongoUser._id)}
+				/>
+			</div>
 		</>
 	);
 };

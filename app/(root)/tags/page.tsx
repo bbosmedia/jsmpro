@@ -3,11 +3,12 @@ import Filter from '@/components/shared/filters/Filter';
 import LocalSearchbar from '@/components/shared/search/LocalSearchbar';
 import { TagFilters } from '@/constants/filters';
 import { getAllTags } from '@/lib/actions/tag.actions';
+import { SearchParamsProps } from '@/types';
 import Link from 'next/link';
 import React from 'react';
 
-const Page = async () => {
-	const result = await getAllTags({});
+const Page = async ({ searchParams }: SearchParamsProps) => {
+	const result = await getAllTags({ searchQuery: searchParams.q });
 	return (
 		<>
 			<h1 className='h1-bold text-dark100_light900'>All Users</h1>
@@ -39,7 +40,9 @@ const Page = async () => {
 									</p>
 								</div>
 								<p className='small-medium text-dark400_light500 mt-3.5'>
-									<span className='body-semibold primary-text-gradient mr-2.5'>{tag.questions.length}+ Questions</span>
+									<span className='body-semibold primary-text-gradient mr-2.5'>
+										{tag.questions.length}+ Questions
+									</span>
 								</p>
 							</article>
 						</Link>
