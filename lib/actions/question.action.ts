@@ -22,7 +22,7 @@ import Interaction from '@/database/interaction.model';
 export async function getQuestions(params: GetQuestionsParams) {
 	try {
 		await connectToDatabase();
-		const { searchQuery } = params;
+		const { searchQuery, filter } = params;
 		const query: FilterQuery<typeof Question> = {};
 
 		if (searchQuery) {
@@ -31,13 +31,33 @@ export async function getQuestions(params: GetQuestionsParams) {
 				{ content: { $regex: new RegExp(searchQuery, 'i') } },
 			];
 		}
+
+		let sortOptions = {};
+
+		switch (filter) {
+			case 'newest':
+				sortOptions = { createdAt: -1 };
+				break;
+			case 'frequent':
+				sortOptions = { views: -1 };
+				break;
+			case 'recommended':
+				sortOptions = { upvotes: -1, views: -1 };
+				break;
+			case 'unanswered':
+				query.answers = { $size: 0 };
+				break;
+			default:
+				break;
+		}
+
 		const questions = await Question.find(query)
 			.populate({
 				path: 'tags',
 				model: Tag,
 			})
 			.populate({ path: 'author', model: User })
-			.sort({ createdAt: -1 });
+			.sort(sortOptions);
 		return { questions };
 	} catch (error) {
 		console.log(error);
@@ -182,6 +202,27 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
 		await connectToDatabase();
 		const query: FilterQuery<typeof Question> = {};
 
+		let sortOptions = {};
+		switch (filter) {
+			case 'most_recent':
+				sortOptions = { createdAt: -1 };
+				break;
+			case 'oldest':
+				sortOptions = { createdAt: 1 };
+				break;
+			case 'most_voted':
+				sortOptions = { upvotes: -1 };
+				break;
+			case 'most_viewed':
+				sortOptions = { views: -1 };
+				break;
+			case 'most_answered':
+				sortOptions = { answers: -1 };
+				break;
+			default:
+				break;
+		}
+
 		if (searchQuery) {
 			query.$or = [
 				{ title: { $regex: new RegExp(searchQuery, 'i') } },
@@ -189,11 +230,12 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
 			];
 		}
 		const skip = (page - 1) * pageSize;
+		console.log(sortOptions);
 		const user = await User.findOne({ clerkId })
 			.populate({
 				path: 'saved',
-				options: { createdAt: -1, skip, limit: pageSize },
 				match: query,
+				options: { sort: sortOptions, skip },
 				populate: [
 					{ path: 'tags', model: Tag, select: '_id name' },
 					{

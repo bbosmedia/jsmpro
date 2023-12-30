@@ -31,15 +31,39 @@ export async function getTopInteractedTags(params: GetTopInteractedTagsParams) {
 
 // Get All Tags
 export async function getAllTags(params: GetAllTagsParams) {
-	const { searchQuery } = params;
+	const { searchQuery, filter, page = 1, pageSize = 10 } = params;
 	try {
 		await connectToDatabase();
 		const query: FilterQuery<typeof Tag> = {};
 
+		const skip = page - 1;
 		if (searchQuery) {
 			query.$or = [{ name: { $regex: new RegExp(searchQuery, 'i') } }];
 		}
-		const tags = await Tag.find(query);
+
+		let sortOptions = {};
+
+		switch (filter) {
+			case 'popular':
+				sortOptions = { questions: -1 };
+				break;
+			case 'recent':
+				sortOptions = { createdAt: -1 };
+				break;
+			case 'old':
+				sortOptions = { createdAt: 1 };
+				break;
+			case 'name':
+				sortOptions = { name: 1 };
+				break;
+			default:
+				break;
+		}
+
+		const tags = await Tag.find(query)
+			.sort(sortOptions)
+			.skip(skip)
+			.limit(pageSize);
 		return { tags };
 	} catch (error) {
 		console.log(error);

@@ -66,6 +66,23 @@ export async function getAllUsers(params: GetAllUsersParams) {
 		const { page = 1, pageSize = 20, filter, searchQuery } = params;
 		const query: FilterQuery<typeof Question> = {};
 
+		let sortOptions = {};
+
+		switch (filter) {
+			case 'new_users':
+				sortOptions = { joinedAt: -1 };
+				break;
+			case 'old_users':
+				sortOptions = { joinedAt: 1 };
+				break;
+			case 'top_contributors':
+				sortOptions = { reputation: -1 };
+				break;
+			default:
+				sortOptions = { joinedAt: -1 };
+				break;
+		}
+
 		if (searchQuery) {
 			query.$or = [
 				{ username: { $regex: new RegExp(searchQuery, 'i') } },
@@ -73,10 +90,9 @@ export async function getAllUsers(params: GetAllUsersParams) {
 				{ email: { $regex: new RegExp(searchQuery, 'i') } },
 				{ bio: { $regex: new RegExp(searchQuery, 'i') } },
 				{ location: { $regex: new RegExp(searchQuery, 'i') } },
-				
 			];
 		}
-		const users = await User.find(query).sort({ createdAt: -1 });
+		const users = await User.find(query).sort(sortOptions);
 		return { users };
 	} catch (e) {
 		console.log(e);

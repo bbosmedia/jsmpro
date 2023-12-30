@@ -11,7 +11,7 @@ import Link from 'next/link';
 import React from 'react';
 
 const Page = async ({ searchParams }: SearchParamsProps) => {
-	const { questions } = await getQuestions({ searchQuery: searchParams.q });
+	const { questions } = await getQuestions({ searchQuery: searchParams.q, filter: searchParams.filter });
 	return (
 		<>
 			<div className='flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center'>

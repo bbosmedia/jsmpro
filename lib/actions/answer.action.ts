@@ -32,16 +32,39 @@ export async function createAnswer(params: CreateAnswerParams) {
 }
 
 export async function getAnswers(params: GetAnswersParams) {
-	const { questionId } = params;
+	const { questionId, sortBy, page = 1, pageSize = 10 } = params;
 	try {
 		await connectToDatabase();
+		const skip = (page - 1) * pageSize;
+		let sortOptions = {};
+		switch (sortBy) {
+			case 'recent':
+				sortOptions = { createdAt: -1 };
+				break;
+			case 'old':
+				sortOptions = { createdAt: 1 };
+				break;
+			case 'highestupvotes':
+				sortOptions = { upvotes: -1 };
+				break;
+			case 'lowestupvotes':
+				sortOptions = { upvotes: 1 };
+				break;
+			default:
+				sortOptions= {
+					createdAt: -1
+				}
+				break;
+		}
 		const answers = await Answer.find({ question: questionId })
 			.populate({
 				path: 'author',
 				model: User,
 				select: '_id clerkId name picture',
 			})
-			.sort({ createdAt: -1 });
+			.sort(sortOptions)
+			.limit(pageSize)
+			.skip(skip);
 		return answers ? { answers } : { answers: [] };
 	} catch (error) {
 		console.log(error);

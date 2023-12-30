@@ -15,7 +15,7 @@ import React, { useEffect } from 'react';
 interface Props {
 	type: 'Question' | 'Answer';
 	itemId: string;
-	userId: string;
+	userId?: string;
 	upvotes: number;
 	hasupVoted: boolean;
 	downvotes: number;
