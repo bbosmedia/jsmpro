@@ -7,12 +7,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { timeAgoFormatter } from '@/lib/utils/timeFormatter';
 import Votes from './Votes';
+import Pagination from './Pagination'
 
 interface Props {
 	questionId: string;
 	userId: string;
 	totalAnswers: number;
-	page?: number;
+	page: number;
 	filter?: string;
 }
 
@@ -23,7 +24,12 @@ const AllAnswers = async ({
 	page,
 	filter,
 }: Props) => {
-	const result = await getAnswers({ questionId, sortBy: filter });
+	const result = await getAnswers({
+		questionId,
+		sortBy: filter,
+		pageSize: 20,
+		page,
+	});
 	return (
 		<div className='mt-11'>
 			<div className='flex items-center justify-between'>
@@ -72,6 +78,12 @@ const AllAnswers = async ({
 						<ParseHTML data={answer.content} />
 					</article>
 				))}
+			</div>
+			<div className='mt-10'>
+				<Pagination
+					isNext={result.isNext}
+					pageNumber={page}
+				/>
 			</div>
 		</div>
 	);

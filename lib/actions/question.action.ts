@@ -17,12 +17,13 @@ import { revalidatePath } from 'next/cache';
 import { FilterQuery } from 'mongoose';
 import Answer from '@/database/answer.model';
 import Interaction from '@/database/interaction.model';
+import { count } from 'console';
 
 // Get Question
 export async function getQuestions(params: GetQuestionsParams) {
 	try {
 		await connectToDatabase();
-		const { searchQuery, filter } = params;
+		const { searchQuery, filter, page = 1, pageSize = 20 } = params;
 		const query: FilterQuery<typeof Question> = {};
 
 		if (searchQuery) {
@@ -31,6 +32,8 @@ export async function getQuestions(params: GetQuestionsParams) {
 				{ content: { $regex: new RegExp(searchQuery, 'i') } },
 			];
 		}
+
+		const skip = (page - 1) * pageSize;
 
 		let sortOptions = {};
 
@@ -57,8 +60,13 @@ export async function getQuestions(params: GetQuestionsParams) {
 				model: Tag,
 			})
 			.populate({ path: 'author', model: User })
+			.skip(skip)
+			.limit(pageSize)
 			.sort(sortOptions);
-		return { questions };
+
+		const totalQuestions = await Question.countDocuments(query);
+		const isNext = totalQuestions > page * pageSize;
+		return { questions, isNext };
 	} catch (error) {
 		console.log(error);
 		throw error;
@@ -230,12 +238,11 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
 			];
 		}
 		const skip = (page - 1) * pageSize;
-		console.log(sortOptions);
 		const user = await User.findOne({ clerkId })
 			.populate({
 				path: 'saved',
 				match: query,
-				options: { sort: sortOptions, skip },
+				options: { sort: sortOptions, skip, limit: pageSize + 1 },
 				populate: [
 					{ path: 'tags', model: Tag, select: '_id name' },
 					{
@@ -245,14 +252,15 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
 					},
 				],
 			})
-			.exec();
 
 		if (!user) {
 			throw new Error('User not found');
 		}
 
 		const savedQuestions = user.saved;
-		return { questions: savedQuestions };
+
+		const isNext = user.saved.length === pageSize;
+		return { questions: savedQuestions, isNext };
 	} catch (error) {
 		console.log(error);
 		throw error;

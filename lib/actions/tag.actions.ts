@@ -64,7 +64,10 @@ export async function getAllTags(params: GetAllTagsParams) {
 			.sort(sortOptions)
 			.skip(skip)
 			.limit(pageSize);
-		return { tags };
+
+		const allTags = await Tag.countDocuments(query);
+		const isNext = allTags > page * pageSize;
+		return { tags, isNext };
 	} catch (error) {
 		console.log(error);
 		throw error;
@@ -83,7 +86,7 @@ export async function getQuestionsByTagId(params: GetQuestionsByTagIdParams) {
 		const tag = await Tag.findOne(tagFilter)
 			.populate({
 				path: 'questions',
-				options: { createdAt: -1, skip, limit: pageSize },
+				options: { createdAt: -1, skip, limit: pageSize + 1 },
 				match: searchQuery
 					? { title: { $regex: new RegExp(searchQuery, 'i') } }
 					: {},
@@ -104,7 +107,9 @@ export async function getQuestionsByTagId(params: GetQuestionsByTagIdParams) {
 
 		const questions = tag.questions;
 
-		return { tagTitle: tag.name, questions };
+		const isNext = questions.length > pageSize;
+
+		return { tagTitle: tag.name, questions, isNext };
 	} catch (error) {
 		console.log(error);
 		throw error;

@@ -8,7 +8,7 @@ import { getQuestionById } from '@/lib/actions/question.action';
 import { getUserById } from '@/lib/actions/user.action';
 import { formatNumber } from '@/lib/utils/formatNumber';
 import { timeAgoFormatter } from '@/lib/utils/timeFormatter';
-import { SearchParams } from '@/types/shared.types';
+import { SearchParamsProps, URLProps } from '@/types';
 import { auth } from '@clerk/nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -17,10 +17,7 @@ import React from 'react';
 const Page = async ({
 	params,
 	searchParams,
-}: {
-	params: { id: string };
-	searchParams: SearchParams;
-}) => {
+}: URLProps) => {
 	const result = await getQuestionById({ questionId: params.id });
 	const { author, tags } = await result;
 	const { userId: clerkId } = await auth();
@@ -103,7 +100,7 @@ const Page = async ({
 					questionId={result._id}
 					userId={JSON.stringify(mongoUser._id)}
 					totalAnswers={result.answers.length}
-					page={1}
+					page={searchParams.page ? +searchParams.page : 1}
 					filter={searchParams.filter}
 				/>
 			)}

@@ -51,9 +51,9 @@ export async function getAnswers(params: GetAnswersParams) {
 				sortOptions = { upvotes: 1 };
 				break;
 			default:
-				sortOptions= {
-					createdAt: -1
-				}
+				sortOptions = {
+					createdAt: -1,
+				};
 				break;
 		}
 		const answers = await Answer.find({ question: questionId })
@@ -65,7 +65,9 @@ export async function getAnswers(params: GetAnswersParams) {
 			.sort(sortOptions)
 			.limit(pageSize)
 			.skip(skip);
-		return answers ? { answers } : { answers: [] };
+		const totalAnswers = await Answer.countDocuments({ question: questionId });
+		const isNext = totalAnswers > page * pageSize;
+		return { answers, isNext };
 	} catch (error) {
 		console.log(error);
 		throw error;

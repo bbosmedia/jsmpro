@@ -65,7 +65,7 @@ export async function getAllUsers(params: GetAllUsersParams) {
 		connectToDatabase();
 		const { page = 1, pageSize = 20, filter, searchQuery } = params;
 		const query: FilterQuery<typeof Question> = {};
-
+		const skip = (page - 1) * pageSize;
 		let sortOptions = {};
 
 		switch (filter) {
@@ -92,8 +92,14 @@ export async function getAllUsers(params: GetAllUsersParams) {
 				{ location: { $regex: new RegExp(searchQuery, 'i') } },
 			];
 		}
-		const users = await User.find(query).sort(sortOptions);
-		return { users };
+		const users = await User.find(query)
+			.sort(sortOptions)
+			.limit(pageSize)
+			.skip(skip);
+
+		const totalUsersCount = await User.countDocuments(query);
+		const isNext = totalUsersCount > pageSize * page;
+		return { users, isNext };
 	} catch (e) {
 		console.log(e);
 		throw e;
@@ -181,8 +187,8 @@ export const getUserQuestions = async (params: GetUserStatsParams) => {
 			.skip(skip)
 			.populate('tags', '_id name')
 			.populate('author', '_id clerkId name picture');
-
-		return { questions: userQuestions, totalQuestions };
+		const isNext = totalQuestions > page * pageSize;
+		return { questions: userQuestions, isNext };
 	} catch (error) {
 		console.log(error);
 		throw error;
@@ -203,7 +209,8 @@ export const getUserAnswers = async (params: GetUserStatsParams) => {
 			.populate('question', '_id title')
 			.populate('author', '_id clerkId name picture');
 
-		return { answers: userAnswers, totalAnswers };
+		const isNext = totalAnswers > page * pageSize;
+		return { answers: userAnswers, isNext };
 	} catch (error) {
 		console.log(error);
 		throw error;
