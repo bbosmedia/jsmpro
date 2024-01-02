@@ -1,68 +1,23 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
-import RenderTag from './RenderTag'
+import RenderTag from './RenderTag';
+import { getHotQuestions } from '@/lib/actions/question.action';
+import { getPopularTags } from '@/lib/actions/tag.actions';
 
-const RightSidebar = () => {
-	const hotQuestions = [
-		{
-			_id: 1,
-			title: 'How do I use express a custom server in NextJS?',
-		},
-		{
-			_id: 2,
-			title: 'How do I use express a custom server in NextJS?',
-		},
-		{
-			_id: 3,
-			title: 'How do I use express a custom server in NextJS?',
-		},
-		{
-			_id: 4,
-			title: 'How do I use express a custom server in NextJS?',
-		},
-		{
-			_id: 5,
-			title: 'How do I use express a custom server in NextJS?',
-		},
-	];
+const RightSidebar = async () => {
+	const hotQuestions: any = await getHotQuestions();
 
-	const popularTags = [
-		{
-			_id: 'as',
-			name: 'javascript',
-			totalQuestions: 5,
-		},
-		{
-			_id: 'assaas',
-			name: 'react',
-			totalQuestions: 4,
-		},
-		{
-			_id: 'dafasd',
-			name: 'typescript',
-			totalQuestions: 4,
-		},
-		{
-			_id: 'asdasdas',
-			name: 'next',
-			totalQuestions: 4,
-		},
-		{
-			_id: 'asjdjs',
-			name: 'vue',
-			totalQuestions: 4,
-		},
-	];
+	const popularTags = await getPopularTags();
 	return (
 		<aside className='background-light900_dark200 light-border flex flex-col sticky top-0 left-0 h-screen overflow-y-auto border-r p-6 pt-36 shadow-light-300 dark:shadow-none max-xl:hidden w-[350px]'>
 			<div>
 				<h3 className='h3-bold text-dark200_light900'>Top Questions</h3>
 				<div className='mt-7 flex w-full flex-col gap-[30px]'>
-					{hotQuestions.map(item => (
+					{hotQuestions.map((item: any) => (
 						<Link
 							key={item._id}
-							href={`/questions/${item._id}`}
+							href={`/question/${item._id}`}
 							className='flex cursor-pointer items-center justify-between gap-7'
 						>
 							<p className='body-medium text-dark500_light700'>{item.title}</p>
@@ -80,7 +35,9 @@ const RightSidebar = () => {
 			<div className='mt-16'>
 				<h3 className='h3-bold text-dark200_light900'>Popular Tags</h3>
 				<div className='flex flex-col mt-7 gap-4'>
-					{popularTags.map(tag=><RenderTag key={tag._id} {...tag} showCount />)}
+					{popularTags.map((tag: any) => (
+						<RenderTag key={tag._id} {...tag} showCount />
+					))}
 				</div>
 			</div>
 		</aside>

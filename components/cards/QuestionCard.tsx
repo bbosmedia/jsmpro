@@ -4,25 +4,38 @@ import RenderTag from '../shared/RenderTag';
 import Metric from '../shared/Metric';
 import { timeAgoFormatter, timeFormatter } from '@/lib/utils/timeFormatter';
 import { formatNumber } from '@/lib/utils/formatNumber';
-import { IUser } from '@/database/user.modal';
+import { IUser } from '@/database/user.model';
+import { SignedIn, auth } from '@clerk/nextjs';
+import EditDeleteAction from '../shared/EditDeleteAction';
 
 interface QuestionCardProps {
-	_id: number;
+	_id: string;
+	clerkId?: string | null;
 	title: string;
 	tags: {
 		_id: string;
 		name: string;
 	}[];
 	author: IUser;
-	upvotes: number;
+	upvotes: Array<Object>;
 	views: number;
 	answers: Array<Object>;
 	createdAt: string;
 }
 
 const QuestionCard = (props: QuestionCardProps) => {
-	const { _id, title, tags, author, upvotes, views, answers, createdAt } =
-		props;
+	const {
+		_id,
+		clerkId,
+		title,
+		tags,
+		author,
+		upvotes,
+		views,
+		answers,
+		createdAt,
+	} = props;
+	const showActionButtons = clerkId && clerkId === author.clerkId;
 	return (
 		<div className='card-wrapper rounded-[10px] p-9 sm:px-11'>
 			<div className='flex flex-col-reverse items-start justify-between gap-5 sm:flex-row'>
@@ -36,6 +49,11 @@ const QuestionCard = (props: QuestionCardProps) => {
 						</h3>
 					</Link>
 				</div>
+				<SignedIn>
+					{showActionButtons && (
+						<EditDeleteAction type={'Question'} itemId={JSON.stringify(_id)} />
+					)}
+				</SignedIn>
 			</div>
 			<div className=' mt-3.5 flex flex-wrap gap-2'>
 				{tags.map(item => (
@@ -56,7 +74,7 @@ const QuestionCard = (props: QuestionCardProps) => {
 				<Metric
 					imgUrl='/assets/icons/like.svg'
 					alt='Upvotes'
-					value={formatNumber(upvotes)}
+					value={formatNumber(upvotes.length)}
 					title='Votes'
 					textStyles='small-medium text-dark400_light800'
 				/>

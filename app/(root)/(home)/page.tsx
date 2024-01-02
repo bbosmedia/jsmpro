@@ -1,16 +1,23 @@
 import QuestionCard from '@/components/cards/QuestionCard';
 import NoResult from '@/components/shared/NoResult';
+import Pagination from '@/components/shared/Pagination';
 import Filter from '@/components/shared/filters/Filter';
 import HomeFilters from '@/components/shared/filters/HomeFilters';
 import LocalSearchbar from '@/components/shared/search/LocalSearchbar';
 import { Button } from '@/components/ui/button';
 import { HomePageFilters } from '@/constants/filters';
 import { getQuestions } from '@/lib/actions/question.action';
+import { SearchParamsProps } from '@/types';
 import Link from 'next/link';
 import React from 'react';
 
-const Page = async () => {
-	const { questions } = await getQuestions({});
+const Page = async ({ searchParams }: SearchParamsProps) => {
+	const { questions, isNext } = await getQuestions({
+		searchQuery: searchParams.q,
+		filter: searchParams.filter,
+		pageSize: 20,
+		page: searchParams.page ? +searchParams.page : 1,
+	});
 	return (
 		<>
 			<div className='flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center'>
@@ -61,6 +68,12 @@ const Page = async () => {
 						linkTitle='Ask a question'
 					/>
 				)}
+			</div>
+			<div className='mt-10'>
+				<Pagination
+					isNext={isNext}
+					pageNumber={searchParams.page ? +searchParams.page : 1}
+				/>
 			</div>
 		</>
 	);

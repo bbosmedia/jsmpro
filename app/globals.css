@@ -3,10 +3,10 @@
 @tailwind utilities;
 
 @import url("../styles/theme.css");
+@import url("../styles/prism.css");
 
 body {
   font-family: "Inter", sans-serif;
-	font-weight: 400;
 }
 
 @layer utilities {
