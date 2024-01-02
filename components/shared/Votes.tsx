@@ -36,14 +36,19 @@ const Votes = ({
 	const pathname = usePathname();
 
 	const handleSave = async () => {
-		await toggleSavedQuestion({
-			questionId: JSON.parse(itemId),
-			userId: JSON.parse(userId),
-			path: pathname,
-		});
+		if (userId) {
+			await toggleSavedQuestion({
+				questionId: JSON.parse(itemId),
+				userId: JSON.parse(userId),
+				path: pathname,
+			});
+		}
 	};
 
 	const handleVote = async (action: 'upvote' | 'downvote') => {
+		if (!userId) {
+			return;
+		}
 		const detailsQuestion = {
 			questionId: JSON.parse(itemId),
 			userId: JSON.parse(userId),
@@ -59,9 +64,6 @@ const Votes = ({
 			path: pathname,
 		};
 
-		if (!userId) {
-			return;
-		}
 		if (type === 'Question') {
 			if (action === 'upvote') {
 				await upvoteQuestion(detailsQuestion);

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import { formUrlQuery } from '@/lib/utils/formUrlQuery';
-import removeKeysFromQuery from '@/lib/utils/removeKeysFromQuery'
+import removeKeysFromQuery from '@/lib/utils/removeKeysFromQuery';
 
 interface LocalSearchbarProps {
 	route: string;
@@ -36,11 +36,11 @@ const LocalSearchbar = ({
 					value: search,
 				});
 				router.push(newUrl, { scroll: false });
-			}else{
-				const newUrl  = removeKeysFromQuery({
+			} else {
+				const newUrl = removeKeysFromQuery({
 					params: searchParams.toString(),
-					keysToRemove: ['q']
-				})
+					keysToRemove: ['q'],
+				});
 				router.push(newUrl, { scroll: false });
 			}
 		}, 300);
@@ -69,7 +69,7 @@ const LocalSearchbar = ({
 				value={search}
 				onChange={e => setSearch(e.target.value)}
 				placeholder={placeholder}
-				className='paragraph-regular no-focus placeholder background-light800_darkgradient outline-none border-none shadow-none'
+				className='paragraph-regular no-focus placeholder background-light800_darkgradient  outline-none border-none shadow-none text-dark400_light700'
 			/>
 			{iconPosition === 'right' && (
 				<Image
