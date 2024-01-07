@@ -50,7 +50,6 @@ export async function globalSearch(params: SearchParams) {
 			if (!modelInfo) {
 				throw Error('Invalid search type');
 			}
-			console.log(modelInfo);
 			const queryResults = await modelInfo.model
 				.find({
 					[modelInfo.searchField]: regexQuery,

@@ -7,7 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { timeAgoFormatter } from '@/lib/utils/timeFormatter';
 import Votes from './Votes';
-import Pagination from './Pagination'
+import Pagination from './Pagination';
 
 interface Props {
 	questionId: string;
@@ -62,17 +62,21 @@ const AllAnswers = async ({
 										</p>
 									</div>
 								</Link>
-								<div className='flex justify-end'>
-									<Votes
-										type='Answer'
-										itemId={JSON.stringify(answer._id)}
-										userId={userId}
-										upvotes={answer.upvotes.length}
-										hasupVoted={answer.upvotes.includes(JSON.parse(userId))}
-										downvotes={answer.downvotes.length}
-										hasdownVoted={answer.downvotes.includes(JSON.parse(userId))}
-									/>
-								</div>
+								{userId && (
+									<div className='flex justify-end'>
+										<Votes
+											type='Answer'
+											itemId={JSON.stringify(answer._id)}
+											userId={userId}
+											upvotes={answer.upvotes.length}
+											hasupVoted={answer.upvotes.includes(JSON.parse(userId))}
+											downvotes={answer.downvotes.length}
+											hasdownVoted={answer.downvotes.includes(
+												JSON.parse(userId)
+											)}
+										/>
+									</div>
+								)}
 							</div>
 						</div>
 						<ParseHTML data={answer.content} />
@@ -80,10 +84,7 @@ const AllAnswers = async ({
 				))}
 			</div>
 			<div className='mt-10'>
-				<Pagination
-					isNext={result.isNext}
-					pageNumber={page}
-				/>
+				<Pagination isNext={result.isNext} pageNumber={page} />
 			</div>
 		</div>
 	);
