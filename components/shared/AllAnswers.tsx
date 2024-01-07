@@ -11,7 +11,7 @@ import Pagination from './Pagination'
 
 interface Props {
 	questionId: string;
-	userId: string;
+	userId?: string;
 	totalAnswers: number;
 	page: number;
 	filter?: string;

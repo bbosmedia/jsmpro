@@ -1,26 +1,32 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import GlobalFilters from './GlobalFilters';
+import { globalSearch } from '@/lib/actions/general.action';
+import useOutsideClick from '@/hooks/useOutsideClick';
 
-const GlobalResult = () => {
+interface Props {
+	setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const GlobalResult = ({ setIsOpen }: Props) => {
 	const searchParams = useSearchParams();
 	const [isLoading, setIsLoading] = useState(false);
-	const [result, setResult] = useState([
-		{ type: 'question', id: '333', title: 'Nextjs question' },
-		{ type: 'tag', id: '333w', title: 'Nextjs' },
-		{ type: 'user', id: '33e3', title: 'Abbos Nurgulshanov' },
-	]);
+	const [result, setResult] = useState([]);
 	const global = searchParams.get('global');
 	const type = searchParams.get('type');
+	const ref = useRef(null);
+	useOutsideClick({ ref, handler: () => setIsOpen(false) });
 	useEffect(() => {
 		const fetchResult = async () => {
 			setResult([]);
 			setIsLoading(true);
 			try {
+				const res = await globalSearch({ query: global, type });
+				setResult(JSON.parse(res));
 			} catch (error) {
 				console.log(error);
 				throw error;
@@ -28,10 +34,15 @@ const GlobalResult = () => {
 				setIsLoading(false);
 			}
 		};
-	}, [type, global]);
+		if (global) {
+			fetchResult();
+		}
+	}, [type, global, searchParams]);
 	return (
-		<div className='absolute top-full z-10 mt-3 w-full bg-light-800 py-5 shadow-sm dark:bg-dark-400 rounded-xl'>
-			
+		<div
+			ref={ref}
+			className='absolute top-full z-10 mt-3 w-full bg-light-800 py-5 shadow-sm dark:bg-dark-400 rounded-xl'
+		>
 			<GlobalFilters />
 			<div className='my-5 h-[1px] bg-light-700/50 dark:bg-dark-500/50' />
 			<div className='space-y-5'>
@@ -51,7 +62,7 @@ const GlobalResult = () => {
 							result.map((item: any, index: number) => (
 								<Link
 									key={item.type + item.id + index}
-									href={renderLink('type', 'a')}
+									href={renderLink(item.type, item.id)}
 									className='flex w-full cursor-pointer items-start gap-3 px-5 py-2.5 hover:bg-light-700/50 dark:hover:bg-dark-500/50'
 								>
 									<Image
@@ -86,7 +97,23 @@ const GlobalResult = () => {
 };
 
 const renderLink = (type: string, id: string) => {
-	return '';
+	switch (type) {
+		case 'question':
+			return `/question/${id}`;
+			break;
+		case 'tag':
+			return `/tags/${id}`;
+			break;
+		case 'answer':
+			return `/question/${id}`;
+			break;
+		case 'user':
+			return `/profile/${id}`;
+			break;
+		default:
+			return '';
+			break;
+	}
 };
 
 export default GlobalResult;
