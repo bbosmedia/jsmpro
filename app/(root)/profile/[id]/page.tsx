@@ -15,9 +15,10 @@ import AnswersTab from '@/components/tabs/AnswersTab';
 
 const Page = async ({ params, searchParams }: URLProps) => {
 	const { userId: clerkId } = auth();
-	const { user, totalAnswers, totalQuestions } = await getUserInfo({
-		userId: params.id,
-	});
+	const { user, totalAnswers, totalQuestions, badgeCounts, reputation } =
+		await getUserInfo({
+			userId: params.id,
+		});
 
 	return (
 		<>
@@ -73,7 +74,14 @@ const Page = async ({ params, searchParams }: URLProps) => {
 					</SignedIn>
 				</div>
 			</div>
-			<Stats totalAnswers={totalAnswers} totalQuestions={totalQuestions} />
+			<Stats
+				totalAnswers={totalAnswers}
+				totalQuestions={totalQuestions}
+				goldBadges={badgeCounts.GOLD}
+				silverBadges={badgeCounts.SILVER}
+				bronzeBadges={badgeCounts.BRONZE}
+				reputations={reputation}
+			/>
 			<div className='mt-10 flex gap-10'>
 				<Tabs defaultValue='top-posts' className='w-full'>
 					<TabsList className='background-light800_dark400 min-h-[42px] p-1'>
