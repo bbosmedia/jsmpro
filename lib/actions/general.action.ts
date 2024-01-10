@@ -11,7 +11,7 @@ export async function globalSearch(params: SearchParams) {
 	const { query, type } = params;
 	try {
 		await connectToDatabase();
-		const regexQuery = { $regex: query, $option: 'i' };
+		const regexQuery = { $regex: query, $options: 'i' };
 		const SearchableTypes = ['question', 'answer', 'user', 'tag'];
 		let result: any[] = [];
 		const modelsAndTypes = [
@@ -23,7 +23,7 @@ export async function globalSearch(params: SearchParams) {
 
 		const typeLower = type?.toLocaleLowerCase();
 
-		if (!typeLower || SearchableTypes.includes(typeLower)) {
+		if (!typeLower || !SearchableTypes.includes(typeLower)) {
 			// Search Accross Everyting
 			for (const { model, searchField, type } of modelsAndTypes) {
 				const queryResults = await model
@@ -46,13 +46,10 @@ export async function globalSearch(params: SearchParams) {
 				result = [...result, ...items];
 			}
 		} else {
-			// Search in special Field
-
 			const modelInfo = modelsAndTypes.find(item => item.type === typeLower);
 			if (!modelInfo) {
 				throw Error('Invalid search type');
 			}
-
 			const queryResults = await modelInfo.model
 				.find({
 					[modelInfo.searchField]: regexQuery,

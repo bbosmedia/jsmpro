@@ -17,7 +17,6 @@ import { revalidatePath } from 'next/cache';
 import { FilterQuery } from 'mongoose';
 import Answer from '@/database/answer.model';
 import Interaction from '@/database/interaction.model';
-import { count } from 'console';
 
 // Get Question
 export async function getQuestions(params: GetQuestionsParams) {
@@ -109,6 +108,18 @@ export async function createQuestion(params: CreateQuestionParams) {
 		await Question.findByIdAndUpdate(question._id, {
 			$push: { tags: { $each: tagDocuments } },
 		});
+
+		// Create Interaction
+		await Interaction.create({
+			user: author,
+			action: 'ask_question',
+			question: question._id,
+			tags: tagDocuments,
+		});
+
+		// Increment author's reputation by +5 for creating question
+		await User.findByIdAndUpdate(author, { $inc: { reputation: 5 } });
+
 		revalidatePath(path);
 	} catch (error) {
 		console.log(error);
@@ -162,6 +173,14 @@ export async function upvoteQuestion(params: QuestionVoteParams) {
 			throw new Error('Question not found');
 		}
 
+		await User.findByIdAndUpdate(userId, {
+			$inc: { reputation: hasupVoted ? -1 : 1 },
+		});
+
+		await User.findByIdAndUpdate(question.author, {
+			$inc: { reputation: hasupVoted ? -10 : 10 },
+		});
+
 		return revalidatePath(path);
 	} catch (error) {
 		console.log(error);
@@ -195,6 +214,14 @@ export async function downvoteQuestion(params: QuestionVoteParams) {
 		if (!question) {
 			throw new Error('Question not found');
 		}
+
+			// Increment author's reputation
+			await User.findByIdAndUpdate(userId, {
+				$inc: { reputation: hasdownVoted ? -1 : 1 },
+			});
+			await User.findByIdAndUpdate(question.author, {
+				$inc: { reputation: hasdownVoted ? -10 : 10 },
+			});
 
 		return revalidatePath(path);
 	} catch (error) {
@@ -238,20 +265,19 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
 			];
 		}
 		const skip = (page - 1) * pageSize;
-		const user = await User.findOne({ clerkId })
-			.populate({
-				path: 'saved',
-				match: query,
-				options: { sort: sortOptions, skip, limit: pageSize + 1 },
-				populate: [
-					{ path: 'tags', model: Tag, select: '_id name' },
-					{
-						path: 'author',
-						model: User,
-						select: '_id clerkId name picture',
-					},
-				],
-			})
+		const user = await User.findOne({ clerkId }).populate({
+			path: 'saved',
+			match: query,
+			options: { sort: sortOptions, skip, limit: pageSize + 1 },
+			populate: [
+				{ path: 'tags', model: Tag, select: '_id name' },
+				{
+					path: 'author',
+					model: User,
+					select: '_id clerkId name picture',
+				},
+			],
+		});
 
 		if (!user) {
 			throw new Error('User not found');
@@ -310,7 +336,6 @@ export const editQuestion = async (params: EditQuestionParams) => {
 };
 
 // Get Hot the questions
-
 export const getHotQuestions = async () => {
 	try {
 		await connectToDatabase();
