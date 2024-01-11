@@ -13,6 +13,26 @@ import { auth } from '@clerk/nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
+import type { Metadata, ResolvingMetadata } from 'next';
+
+export async function generateMetadata(
+	{ params, searchParams }: URLProps,
+	parent: ResolvingMetadata
+): Promise<Metadata> {
+	const result = await getQuestionById({ questionId: params.id });
+
+	return {
+		title: result.title,
+		description: result.title,
+		openGraph: {
+			title: result.title,
+			description: result.title,
+		},
+		icons: {
+			icon: '/assets/images/site-logo.svg',
+		},
+	};
+}
 
 const Page = async ({ params, searchParams }: URLProps) => {
 	const result = await getQuestionById({ questionId: params.id });

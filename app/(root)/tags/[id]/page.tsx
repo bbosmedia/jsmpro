@@ -1,12 +1,37 @@
 import QuestionCard from '@/components/cards/QuestionCard';
 import NoResult from '@/components/shared/NoResult';
-import Pagination from '@/components/shared/Pagination'
+import Pagination from '@/components/shared/Pagination';
 import LocalSearchbar from '@/components/shared/search/LocalSearchbar';
 import { Button } from '@/components/ui/button';
 import { getQuestionsByTagId } from '@/lib/actions/tag.actions';
 import { URLProps } from '@/types';
+import type { Metadata, ResolvingMetadata } from 'next';
 import Link from 'next/link';
 import React from 'react';
+
+export async function generateMetadata(
+	{ params, searchParams }: URLProps,
+	parent: ResolvingMetadata
+): Promise<Metadata> {
+	const { tagTitle, questions, isNext } = await getQuestionsByTagId({
+		tagId: params.id,
+		page: searchParams.page ? +searchParams.page : 1,
+		pageSize: 20,
+		searchQuery: searchParams.q,
+	});
+
+	return {
+		title: tagTitle,
+		description: tagTitle,
+		openGraph: {
+			title: tagTitle,
+			description: tagTitle,
+		},
+		icons: {
+			icon: '/assets/images/site-logo.svg',
+		},
+	};
+}
 
 const Page = async ({ params, searchParams }: URLProps) => {
 	const { tagTitle, questions, isNext } = await getQuestionsByTagId({

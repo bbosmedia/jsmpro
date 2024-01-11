@@ -1,7 +1,16 @@
 import LeftSidebar from '@/components/shared/LeftSidebar';
 import RightSidebar from '@/components/shared/RightSidebar';
 import Navbar from '@/components/shared/navbar/Navbar';
+import type { Metadata } from 'next';
 import React from 'react';
+
+export const metadata: Metadata = {
+	title: 'Home | Dev Overflow',
+	description: 'Dev Overflow is community of 1.000.000+ developers. Join Us.',
+	icons: {
+		icon: '/assets/images/site-logo.svg',
+	},
+};
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
 	return (

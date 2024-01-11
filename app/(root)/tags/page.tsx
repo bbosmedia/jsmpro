@@ -1,5 +1,5 @@
 import NoResult from '@/components/shared/NoResult';
-import Pagination from '@/components/shared/Pagination'
+import Pagination from '@/components/shared/Pagination';
 import Filter from '@/components/shared/filters/Filter';
 import LocalSearchbar from '@/components/shared/search/LocalSearchbar';
 import { TagFilters } from '@/constants/filters';
@@ -7,6 +7,15 @@ import { getAllTags } from '@/lib/actions/tag.actions';
 import { SearchParamsProps } from '@/types';
 import Link from 'next/link';
 import React from 'react';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+	title: 'Tags | Dev Overflow',
+	description: 'Dev Overflow is community of 1.000.000+ developers. Join Us.',
+	icons: {
+		icon: '/assets/images/site-logo.svg',
+	},
+};
 
 const Page = async ({ searchParams }: SearchParamsProps) => {
 	const result = await getAllTags({
