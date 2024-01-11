@@ -8,7 +8,7 @@ import { getQuestionById } from '@/lib/actions/question.action';
 import { getUserById } from '@/lib/actions/user.action';
 import { formatNumber } from '@/lib/utils/formatNumber';
 import { timeAgoFormatter } from '@/lib/utils/timeFormatter';
-import { SearchParamsProps, URLProps } from '@/types';
+import { URLProps } from '@/types';
 import { auth } from '@clerk/nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -44,12 +44,16 @@ const Page = async ({ params, searchParams }: URLProps) => {
 					<Votes
 						type='Question'
 						itemId={JSON.stringify(result._id)}
-						userId={JSON.stringify(mongoUser._id)}
+						userId={mongoUser ? JSON.stringify(mongoUser._id) : undefined}
 						upvotes={result.upvotes.length}
-						hasupVoted={result.upvotes.includes(mongoUser._id)}
+						hasupVoted={
+							mongoUser ? result.upvotes.includes(mongoUser._id) : false
+						}
 						downvotes={result.downvotes.length}
-						hasdownVoted={result.downvotes.includes(mongoUser._id)}
-						hasSaved={mongoUser.saved.includes(result._id)}
+						hasdownVoted={
+							mongoUser ? result.downvotes.includes(mongoUser._id) : false
+						}
+						hasSaved={mongoUser ? mongoUser.saved.includes(result._id) : false}
 					/>
 				</div>
 
@@ -95,19 +99,21 @@ const Page = async ({ params, searchParams }: URLProps) => {
 			{result && (
 				<AllAnswers
 					questionId={result._id}
-					userId={JSON.stringify(mongoUser._id)}
+					userId={mongoUser ? JSON.stringify(mongoUser._id) : undefined}
 					totalAnswers={result.answers.length}
 					page={searchParams.page ? +searchParams.page : 1}
 					filter={searchParams.filter}
 				/>
 			)}
-			<div className='mt-8'>
-				<Answer
-					question={result.content}
-					questionId={JSON.stringify(result._id)}
-					author={JSON.stringify(mongoUser._id)}
-				/>
-			</div>
+			{mongoUser && (
+				<div className='mt-8'>
+					<Answer
+						question={result.content}
+						questionId={JSON.stringify(result._id)}
+						author={JSON.stringify(mongoUser._id)}
+					/>
+				</div>
+			)}
 		</>
 	);
 };

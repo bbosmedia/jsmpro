@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 import { Inter, Space_Grotesk } from 'next/font/google';
 import React from 'react';
 import { ThemeProvider } from '@/context/ThemeProvider';
+import { Toaster } from '@/components/ui/toaster';
 const inter = Inter({
 	subsets: ['latin'],
 	weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
@@ -43,6 +44,7 @@ export default function RootLayout({
 				>
 					<ThemeProvider>{children}</ThemeProvider>
 				</ClerkProvider>
+				<Toaster />
 			</body>
 		</html>
 	);
