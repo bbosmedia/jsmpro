@@ -39,46 +39,48 @@ const AllAnswers = async ({
 			<div>
 				{result.answers.map(answer => (
 					<article className='light-border border-b py-10' key={answer._id}>
-						<div className='flex items-center justify-between w-full'>
-							<div className='mb-8 flex flex-col-reverse justify-between gap-5 sm:flex-row sm:items-center sm:gap-2'>
-								<Link
-									href={'/profile/' + answer.author.clerkId}
-									className='flex flex-1 items-start gap-1 sm:items-center'
-								>
-									<Image
-										src={answer.author.picture}
-										height={18}
-										width={18}
-										className='rounded-full object-cover max-sm:mt-0.5'
-										alt={answer.author.name}
-									/>
-									<div className='flex flex-col sm:flex-row sm:items-center'>
-										<p className='body-semibold text-dark300_light700'>
-											{answer.author.name}
-										</p>
-										<p className='small-regular text-light400_light500 mt-0.5 line-clamp-1 ml-0.5'>
-											<span className='max-sm:hidden'> -</span> answered{' '}
-											{timeAgoFormatter(answer.createdAt)}
-										</p>
-									</div>
-								</Link>
-								{userId && (
-									<div className='flex justify-end'>
-										<Votes
-											type='Answer'
-											itemId={JSON.stringify(answer._id)}
-											userId={userId}
-											upvotes={answer.upvotes.length}
-											hasupVoted={answer.upvotes.includes(JSON.parse(userId))}
-											downvotes={answer.downvotes.length}
-											hasdownVoted={answer.downvotes.includes(
-												JSON.parse(userId)
-											)}
-										/>
-									</div>
-								)}
+						<div className='mb-8 flex flex-col-reverse justify-between gap-5 sm:flex-row sm:items-center sm:gap-2'>
+							<Link
+								href={'/profile/' + answer.author.clerkId}
+								className='flex flex-1 items-start gap-1 sm:items-center'
+							>
+								<Image
+									src={answer.author.picture}
+									height={18}
+									width={18}
+									className='rounded-full object-cover max-sm:mt-0.5'
+									alt={answer.author.name}
+								/>
+								<div className='flex flex-col sm:flex-row sm:items-center'>
+									<p className='body-semibold text-dark300_light700'>
+										{answer.author.name}
+									</p>
+									<p className='small-regular text-light400_light500 mt-0.5 line-clamp-1 ml-0.5'>
+										<span className='max-sm:hidden'> -</span> answered{' '}
+										{timeAgoFormatter(answer.createdAt)}
+									</p>
+								</div>
+							</Link>
+
+							<div className='flex justify-end'>
+								<Votes
+									type='Answer'
+									itemId={JSON.stringify(answer._id)}
+									userId={userId}
+									upvotes={answer.upvotes.length}
+									hasupVoted={
+										userId ? answer.upvotes.includes(JSON.parse(userId)) : false
+									}
+									downvotes={answer.downvotes.length}
+									hasdownVoted={
+										userId
+											? answer.downvotes.includes(JSON.parse(userId))
+											: false
+									}
+								/>
 							</div>
 						</div>
+
 						<ParseHTML data={answer.content} />
 					</article>
 				))}

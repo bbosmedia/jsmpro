@@ -18,16 +18,18 @@ const AnswersTab = async (props: Props) => {
 	});
 	return (
 		<>
-			{result.answers.map((answer, index) => (
-				<AnswerCard
-					_id={answer._id}
-					question={answer.question}
-					author={answer.author}
-					upvotes={answer.upvotes.length}
-					createdAt={answer.createdAt}
-					clerkId={clerkId}
-				/>
-			))}
+			<div className='flex flex-col gap-5'>
+				{result.answers.map((answer, index) => (
+					<AnswerCard
+						_id={answer._id}
+						question={answer.question}
+						author={answer.author}
+						upvotes={answer.upvotes.length}
+						createdAt={answer.createdAt}
+						clerkId={clerkId}
+					/>
+				))}
+			</div>
 			<div className='mt-10'>
 				<Pagination
 					isNext={result.isNext}
